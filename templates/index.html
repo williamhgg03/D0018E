@@ -3,34 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Military surplus warehouse</title>
+    <title>Military Surplus Warehouse</title>
 </head>
 <body>
- <h1>Welcome to the Military's surplus</h1>
- <h2>We got everything that you could want in stock</h2>
- <p>Login below to view the our selection of products</p>
+    <h1>Welcome to the Military's Surplus</h1>
+    <h2>We got everything that you could want in stock</h2>
+    <p>Login below to view our selection of products</p>
 
- <form class="flex flex-col justify-center 
-                 items-center mt-5" 
-          id="form">
-        <input class="border border-gray-400 
-                      rounded-md mt-5 p-1" 
-               type="text" 
-               placeholder="Name" 
-               id="myname">
-        <input class="border border-gray-400 
-                      rounded-md mt-5 p-1" 
-               type="text" 
-               placeholder="password" 
-               id="mypassword">
-        <button class="bg-blue-500 rounded-md p-2 
-                       text-white mt-5">
-              login
-          </button>
+    <form action="/login" method="POST">
+        <input type="text" name="username" placeholder="Name" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
     </form>
 
+    <p>Don't have an account? <a href="/register">Register here</a></p>
 
-
-    <a href="/templates/password_reset.html">password_reset</a>
+    <a href="/password_reset.html">Forgot Password?</a>
 </body>
 </html>
