@@ -56,19 +56,23 @@ def register():
     return render_template("register.html")
 
 # Login Route
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET","POST"])
 def login():
-    name = request.form.get("username")
-    password = request.form.get("password")
+    if request.method== "POST":
 
-    user = User.query.filter_by(username=name).first()  # Fetch user from database
-    if check_password_hash(user.password_hash, password):
-        flash("Login Successful!", "success")
-        print("login successful")
-        return redirect(url_for("dashboard"))  # Redirect to dashboard
-    else:
-        flash("Invalid Credentials. Try Again.", "danger")
-        return redirect(url_for("index"))
+        name = request.form.get("username")
+        password = request.form.get("password")
+
+        user = User.query.filter_by(username=name).first()  # Fetch user from database
+        if check_password_hash(user.password_hash, password):
+            flash("Login Successful!", "success")
+            print("login successful")
+            return redirect(url_for("dashboard"))  # Redirect to dashboard
+        else:
+            flash("Invalid Credentials. Try Again.", "danger")
+            return redirect(url_for("index"))
+    
+    return render_template("login.html")
 
 # Dashboard Page
 @app.route("/dashboard")
