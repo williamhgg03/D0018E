@@ -2,7 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql  # Ensure you have this installed (`pip install pymysql`)
+import stripe
+import os
+import dotenv
 
+
+dotenv.load_dotenv()
 app = Flask(__name__)
 
 # Remote MySQL Database Connection
@@ -16,6 +21,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['SECRET_KEY'] = 'AWS_sucks'
 
 db = SQLAlchemy(app)
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 # Define User Model
 class User(db.Model):
@@ -79,6 +85,53 @@ def login():
 def dashboard():
     return "<h1>Welcome to the Dashboard!</h1>"
 
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    print(os.getenv("STRIPE_SECRET_KEY"))
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': 'price_1QwPHgJAlkdUJocHDyvZBXLK',
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url= "http://127.0.0.1:5000" + '/success.html',
+            cancel_url= "http://127.0.0.1:5000" + '/cancel.html',
+        )
+    except Exception as e:
+        return str(e)
+
+    return redirect(checkout_session.url, code=303)
+
+@app.route("/checkout.html")
+def checkout():
+    return render_template("checkout.html")
+
+@app.route("/success.html")
+def success():
+    return render_template("success.html")
+    
+@app.route("/cancel.html")
+def cancel():
+    return render_template("cancel.html")
+
+product = stripe.Product.create(
+    name="T-shirt",
+    description="Comfortable cotton t-shirt",
+)
+
+# Create a price for the product
+price = stripe.Price.create(
+    product=product.id,
+    unit_amount=2000,  # Amount in cents (e.g., $20.00)
+    currency="usd",
+)
+
+print(f"Product ID: {product.id}")
+print(f"Price ID: {price.id}")
 
 # Run Flask App
 if __name__ == "__main__":
