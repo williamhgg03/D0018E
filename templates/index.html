@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Military Surplus Warehouse</title>
-    <link rel="stylesheet" type="text/css" href="./static/styles/index.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/index.css">
     <style>
         body {
             display: flex;
@@ -16,6 +16,7 @@
             background: #f3f3f3;
             flex-direction: column;
             margin: 0;
+            position: relative;
         }
 
         .main {
@@ -94,13 +95,36 @@
             width: 100%;
             font-size: 16px;
         }
+
+        .shopping_cart {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #4CAF50;
+            cursor: pointer;
+        }
+
+        .shopping_cart img {
+            width: 30px;
+            height: 30px;
+        }
     </style>
 </head>
 <body>
+    <script>
+
+
+    </script>
+    <div class="shopping_cart">
+        <a href="/cart">
+            <img src="/static/images/shopping-cart.png" alt="Shopping Cart">
+        </a>
+    </div>
     <div class="main">
         <h1>Welcome to the Military's Surplus</h1>
         <h2>We got everything that you could want in stock</h2>
-        <p>Login below to view our selection of products <a href="/login">login</a></p>
+        <p>Login below to shop from our selection of products <a href="/login">login</a></p>
         <p>Don't have an account? <a href="/register">Register here</a></p>
         <a href="/password_reset.html">Forgot Password?</a>
 
@@ -108,8 +132,8 @@
             <div class="product_card">
                 <div class="product_image"></div>
                 <div class="product_description">
-                    <div class="product_description_text">Product 1 Description</div>
-                    <div class="product_description_price">$10.00</div>
+                    <div class="product_description_text">{{products}}</div>
+                    <div class="product_description_price">{{products.price}}</div>
                     <div class="product_description_cart">
                         <button>Add to cart</button>
                     </div>

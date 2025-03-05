@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql  # Ensure you have this installed (`pip install pymysql`)
-
+from sqlalchemy import select
 app = Flask(__name__)
 
 # Remote MySQL Database Connection
@@ -24,10 +24,25 @@ class User(db.Model):
     username = db.Column(db.String(100), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)  # Store hashed passwords
 
+class products(db.Model):
+    __tablename__= "products"
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(100))
+    description = db.Column(db.String(255), nullable=False)
+    price = db.Column(db.String(255),nullable=False)
+    stock = db.Column(db.Integer,nullable=False)
+     
+    
 # Home Page
-@app.route("/")
+@app.route("/",methods=["POST","GET"])
 def index():
-    return render_template("index.html")
+    if request.method == "GET":
+        
+       products_list = products.query.all()
+    
+    
+    
+    return render_template("index.html",products = products_list)
 
 # Registration Page (GET and POST)
 @app.route("/register", methods=["GET", "POST"])
