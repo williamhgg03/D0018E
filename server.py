@@ -58,7 +58,23 @@ class Product(db.Model):
     price = db.Column(db.String(255),nullable=False)
     stock = db.Column(db.Integer,nullable=False)
     image_url = db.Column(db.String(255),nullable=True)
+
+class Orders(db.Model):
+    __tablename__ = "orders"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    total = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
+    status = db.Column(db.Enum('pending', 'completed', 'canceled', name="order_status"), 
+                       nullable=False, default="pending") 
      
+class Order_Items(db.Model):
+    __tablename__ = "order_items"
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'))
+    quantity = db.Column(db.Integer, nullable=False, check_constraint="quantity > 0")
+    price = db.Column(db.Float, nullable=False)
 
 # Home Page
 @app.route("/",methods=["POST","GET"])
@@ -194,11 +210,6 @@ def clear_cart():
         flash("Shopping cart cleared.", "success")
     return redirect(url_for("view_cart"))
 
-# Dashboard Page
-@app.route("/dashboard")
-def dashboard():
-    return "<h1>Welcome to the Dashboard!</h1>"
-
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     if "user_id" not in session:
@@ -256,6 +267,21 @@ def success():
     user_id = session["user_id"]
     cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
     items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+
+    total_price = 0
+    for cart_item, product in items:
+        total_price += product.price * cart_item.quantity
+
+    # Create new order
+    order = Orders(user_id=user_id, total=total_price, created_at=db.func.now())
+    db.session.add(order)
+    db.session.commit()
+
+    for cart_item, product in items:
+        order_item = Order_Items(order_id=order.id, product_id=product.id, quantity=cart_item.quantity, price=product.price)
+        db.session.add(order_item)
+    db.session.commit()
+
     for cart_item, product in items:
         db.session.delete(cart_item) # Remove bought items from cart
     db.session.commit()
