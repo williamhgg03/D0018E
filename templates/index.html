@@ -143,7 +143,9 @@
                         <img src="{{ product.image_url }}" alt="{{ product.name }}">
                     </div>
                     <div class="product-description">
-                        <h3 class="product-name">{{ product.name }}</h3>
+                        <a href="/product_view/{{ product.id }}">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                        </a>
                         <p class="product-price">${{ product.price }}</p>
                         <a href="/add/{{ product.id }}" class="add-to-cart-btn">
                             Add to Cart
