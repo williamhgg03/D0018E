@@ -66,12 +66,21 @@
         .product_card:hover {
             transform: scale(1.05);
         }
+        .product_image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Gör så att bilden fyller hela kortet utan att förvrängas */
+        }
 
         
         .product_image {
             width: 100%;
             height: 200px;
-            background-color: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ddd; /* Reservbakgrund om ingen bild finns */
+            overflow: hidden;
         }
 
         .product_description {
@@ -111,8 +120,8 @@
         }
 
         .shopping_cart img {
-            width: 30px;
-            height: 30px;
+            width: 50px;
+            height: 50px;
         }
     </style>
 </head>
@@ -137,7 +146,9 @@
             <div class="product_catalog">
             {% for product in products %}
                 <div class="product_card">
-                    <div class="product_image"></div>
+                    <div class="product_image">
+                        <img src="{{product.image_url}}" alt="{{product.name}}">
+                    </div>
                     <div class="product_description">
                         <div class="product_description_text">{{ product.name }}</div>
                         <div class="product_description_text">{{ product.description }}</div>

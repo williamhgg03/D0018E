@@ -31,6 +31,7 @@ class Product(db.Model):
     description = db.Column(db.String(255), nullable=False)
     price = db.Column(db.String(255),nullable=False)
     stock = db.Column(db.Integer,nullable=False)
+    image_url = db.Column(db.String(255),nullable=True)
      
     
 # Home Page
