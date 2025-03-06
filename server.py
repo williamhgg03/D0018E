@@ -211,10 +211,17 @@ def create_checkout_session():
         flash("Your cart is empty.", "danger")
         return redirect(url_for("view_cart"))
 
-    items = db.session.query(Shopping_Cart_Items, Products).join(Products).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+    items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
     if not items:
         flash("Your cart is empty.", "danger")
         return redirect(url_for("view_cart"))
+
+    for cart_item, product in items:
+        if cart_item.quantity > product.stock:
+            flash(f"Insufficient stock for {product.name}.", "danger")
+            return redirect(url_for("view_cart"))
+        product.stock -= cart_item.quantity # remove stock so no one else can buy it
+    db.session.commit()
 
     line_items = []
     for item, product in items:
@@ -244,17 +251,31 @@ def create_checkout_session():
 
     return redirect(checkout_session.url, code=303)
 
+@app.route("/success.html")
+def success():
+    user_id = session["user_id"]
+    cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
+    items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+    for cart_item, product in items:
+        db.session.delete(cart_item) # Remove bought items from cart
+    db.session.commit()
+    return render_template(url_for("success"))
+
+@app.route("/cancel.html")
+def cancel():
+    user_id = session["user_id"]
+    cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
+    items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+    for cart_item, product in items:
+        product.stock += cart_item.quantity # Add back stock
+    db.session.commit()
+    return render_template(url_for("cancel"))
+
+'''
 @app.route("/checkout.html")
 def checkout():
     return render_template("checkout.html")
-
-@app.route("/success.html")
-def success():
-    return render_template("success.html")
-    
-@app.route("/cancel.html")
-def cancel():
-    return render_template("cancel.html")
+'''
 
 def create_stripe_products():
     products = Product.query.all()
