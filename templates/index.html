@@ -4,15 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Military Surplus Warehouse</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles/index.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            background: #f3f3f3;
+            flex-direction: column;
+            margin: 0;
+            position: relative;
+        }
+
+        .main {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            transition: transform 0.2s;
+            width: 80%;
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #4CAF50;
+        }
+
+        p {
+            color: #555;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .product_catalog {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product_card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .product_card:hover {
+            transform: scale(1.05);
+        }
+
+        .product_image {
+            width: 100%;
+            height: 200px;
+            background-color: #ddd;
+        }
+
+        .product_description {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .product_description_text {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .product_description_price {
+            margin-bottom: 10px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .product_description_cart button {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            background-color: #4CAF50;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .shopping_cart {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #4CAF50;
+            cursor: pointer;
+        }
+
+        .shopping_cart img {
+            width: 30px;
+            height: 30px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Military's Surplus</h1>
-    <h2>We got everything that you could want in stock</h2>
-    <p>Login below to view our selection of products <a href="/login">login</a></p>
-    
-    <p>Don't have an account? <a href="/register">Register here</a></p>
+    <script>
 
+<<<<<<< HEAD
     <a href="/password_reset.html">Forgot Password?</a>
     <a href="/checkout.html">Checkout</a>
+=======
+
+    </script>
+    <div class="shopping_cart">
+        <a href="/cart">
+            <img src="/static/images/shopping-cart.png" alt="Shopping Cart">
+        </a>
+    </div>
+    <div class="main">
+        <h1>Welcome to the Military's Surplus</h1>
+        <h2>We got everything that you could want in stock</h2>
+        <p>Login below to shop from our selection of products <a href="/login">login</a></p>
+        <p>Don't have an account? <a href="/register">Register here</a></p>
+        <a href="/password_reset.html">Forgot Password?</a>
+
+        <div class="product_catalog">
+            <div class="product_card">
+                <div class="product_image"></div>
+                <div class="product_description">
+                    <div class="product_description_text">{{products}}</div>
+                    <div class="product_description_price">{{products.price}}</div>
+                    <div class="product_description_cart">
+                        <a href="/add/1"><button>Add to cart</button></a>
+                    </div>
+                </div>
+            </div>
+            <div class="product_card">
+                <div class="product_image"></div>
+                <div class="product_description">
+                    <div class="product_description_text">Product 2 Description</div>
+                    <div class="product_description_price">$20.00</div>
+                    <div class="product_description_cart">
+                        <button>Add to cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="product_card">
+                <div class="product_image"></div>
+                <div class="product_description">
+                    <div class="product_description_text">Product 3 Description</div>
+                    <div class="product_description_price">$30.00</div>
+                    <div class="product_description_cart">
+                        <button>Add to cart</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Repeat the product_card div as needed -->
+        </div>
+    </div>
+>>>>>>> origin/william
 </body>
 </html>
