@@ -46,8 +46,8 @@
         <h1>Shopping Cart</h1>
         <div class="cart">
             <ul>
-                <li> {{ items[0] }} <a href="/remove/1"><button>Remove</button></a></li>
-                <li> {{ items[1] }} <button>Remove</button></li>
+                <li>Product: {{ items[0][1].name }}, Quantity: {{ items[0][0].quantity }} <a href="/remove/1"><button>Remove</button></a></li>
+                <li>  <button>Remove</button></li>
             </ul>
             <buttton>Clear cart</buttton>
             <button>Checkout</button>
