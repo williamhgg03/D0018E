@@ -43,71 +43,68 @@
             text-decoration: none;
         }
 
-        .product_catalog {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Anpassar sig efter skärmbredd */
-            gap: 20px;
-            width: 100%; /* Gör att den fyller main-diven */
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 10px;
-        }
-        .product_card {
-            background-color: #fff;
+                /* Product Card */
+        .product-card {
+            width: 300px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: transform 0.2s;
-            width: 100%; /* Se till att korten fyller sin grid-cell */
-            max-width: 300px; /* Hindrar dem från att bli för breda */
+            overflow: hidden; /* Ensures everything stays within the card */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a soft shadow */
+            background-color: #fff;
             text-align: center;
-        }
-
-        .product_card:hover {
-            transform: scale(1.05);
-        }
-        .product_image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Gör så att bilden fyller hela kortet utan att förvrängas */
-        }
-
-        
-        .product_image {
-            width: 100%;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #ddd; /* Reservbakgrund om ingen bild finns */
-            overflow: hidden;
-        }
-
-        .product_description {
             padding: 15px;
-            text-align: left;
+            transition: transform 0.2s ease-in-out;
         }
 
-        .product_description_text {
-            margin-bottom: 10px;
-            color: #555;
+        /* Hover effect */
+        .product-card:hover {
+            transform: scale(1.05); /* Slightly enlarges the card on hover */
         }
 
-        .product_description_price {
-            margin-bottom: 10px;
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        .product_description_cart button {
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            color: white;
-            cursor: pointer;
-            background-color: #4CAF50;
+        /* Product Image */
+        .product-image img {
             width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        /* Product Description */
+        .product-description {
+            padding: 10px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
             font-size: 16px;
+            color: #2a9d8f; /* Stylish green price */
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Add to Cart Button */
+        .add-to-cart-btn {
+            display: inline-block;
+            background-color: #e76f51;
+            color: #fff;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: #d64c3a;
+        }
+
+        /* FontAwesome Shopping Cart Icon */
+        .add-to-cart-btn i {
+            margin-right: 5px;
         }
 
         .shopping_cart {
@@ -141,17 +138,16 @@
         <div class="product_catalog">
             <div class="product_catalog">
             {% for product in products %}
-                <div class="product_card">
-                    <div class="product_image">
-                        <img src="{{product.image_url}}" alt="{{product.name}}">
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}">
                     </div>
-                    <div class="product_description">
-                        <div class="product_description_text">{{ product.name }}</div>
-                        <div class="product_description_text">{{ product.description }}</div>
-                        <div class="product_description_price">${{ product.price }}</div>
-                        <div class="product_description_cart">
-                            <button>Add to cart</button>
-                        </div>
+                    <div class="product-description">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <p class="product-price">${{ product.price }}</p>
+                        <a href="/add/{{ product.id }}" class="add-to-cart-btn">
+                            Add to Cart
+                        </a>
                     </div>
                 </div>
                 {% endfor %}
