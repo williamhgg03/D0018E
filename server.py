@@ -150,7 +150,7 @@ def view_cart():
     cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
     items = []
     if cart:
-        items = db.session.query(Shopping_Cart_Items, Products).join(Products).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+        items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
     return render_template("cart.html", items=items)
 
 # Remove item from cart
