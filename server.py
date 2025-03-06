@@ -148,23 +148,28 @@ def view_cart():
     if "user_id" not in session:
         flash("You must be logged in to view your cart.", "danger")
         return redirect(url_for("login"))
-    
+
     user_id = session["user_id"]
-    cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
+    cart = get_or_create_cart(user_id)
     items = []
     if cart:
         items = db.session.query(Shopping_Cart_Items, Products).join(Products).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
     return render_template("cart.html", items=items)
 
 # Remove item from cart
-@app.route("/cart/remove/<int:item_id>", methods=["POST"])
+@app.route("/remove/<int:item_id>", methods=["GET","POST"])
 def remove_from_cart(item_id):
     if "user_id" not in session:
         flash("You must be logged in to remove items from your cart.", "danger")
         return redirect(url_for("login"))
     
-    item = Shopping_Cart_Items.query.get(item_id)
-    if item:
+    user_id = session["user_id"]
+    cart = get_or_create_cart(user_id)
+    item = Shopping_Cart_Items.query.filter(Shopping_Cart_Items.shopping_cart_id == cart.id).filter(Shopping_Cart_Items.product_id == item_id).first()
+    if item and item.quantity > 1:
+        item.quantity -= 1
+        db.session.commit()
+    elif item and item.quantity == 1:
         db.session.delete(item)
         db.session.commit()
         flash("Item removed from cart.", "success")
