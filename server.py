@@ -49,25 +49,22 @@ class Shopping_Cart_Items(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'),  nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-class Products(db.Model):
-    __tablename__ = "products"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+# Class to represent 
+class Product(db.Model):
+    __tablename__= "products"
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(100))
     description = db.Column(db.String(255), nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    stock = db.Column(db.Integer, nullable=False)
-    image_url = db.Column(db.String(255), nullable=False)
+    price = db.Column(db.String(255),nullable=False)
+    stock = db.Column(db.Integer,nullable=False)
+    image_url = db.Column(db.String(255),nullable=True)
+     
 
 # Home Page
 @app.route("/",methods=["POST","GET"])
 def index():
-    if request.method == "GET":
-        
-       products_list = Products.query.all()
-    
-    
-    
-    return render_template("index.html",products = products_list)
+    products = Product.query.all()  # Hämta alla produkter från databasen
+    return render_template("index.html", products=products)
 
 # Registration Page (GET and POST)
 @app.route("/register", methods=["GET", "POST"])
@@ -160,7 +157,7 @@ def view_cart():
     cart = get_or_create_cart(user_id)
     items = []
     if cart:
-        items = db.session.query(Shopping_Cart_Items, Products).join(Products).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+        items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
     return render_template("cart.html", items=items)
 
 # Remove item from cart
