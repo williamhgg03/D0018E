@@ -24,7 +24,7 @@ class User(db.Model):
     username = db.Column(db.String(100), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)  # Store hashed passwords
 
-class products(db.Model):
+class Product(db.Model):
     __tablename__= "products"
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(100))
@@ -36,13 +36,8 @@ class products(db.Model):
 # Home Page
 @app.route("/",methods=["POST","GET"])
 def index():
-    if request.method == "GET":
-        
-       products_list = products.query.all()
-    
-    
-    
-    return render_template("index.html",products = products_list)
+    products = Product.query.all()  # Hämta alla produkter från databasen
+    return render_template("index.html", products=products)
 
 # Registration Page (GET and POST)
 @app.route("/register", methods=["GET", "POST"])
