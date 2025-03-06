@@ -30,6 +30,13 @@ class User(db.Model):
     username = db.Column(db.String(100), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)  # Store hashed passwords
 
+class Product(db.Model):
+    __tablename__ = "products"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    price = db.Column(db.Integer, nullable=False)  # Price in cents
+
 # Home Page
 @app.route("/")
 def index():
@@ -87,19 +94,23 @@ def dashboard():
 
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
-    print(os.getenv("STRIPE_SECRET_KEY"))
+    stripe_products = create_stripe_products()
+    if not stripe_products:
+        return "No products available", 400
+
+    first_product = stripe_products[0]
+
     try:
         checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
-                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                    'price': 'price_1QwPHgJAlkdUJocHDyvZBXLK',
+                    'price': first_product['price_id'],
                     'quantity': 1,
                 },
             ],
             mode='payment',
-            success_url= "http://127.0.0.1:5000" + '/success.html',
-            cancel_url= "http://127.0.0.1:5000" + '/cancel.html',
+            success_url= url_for('success', _external=True),
+            cancel_url= url_for('cancel', _external=True),
         )
     except Exception as e:
         return str(e)
@@ -118,20 +129,26 @@ def success():
 def cancel():
     return render_template("cancel.html")
 
-product = stripe.Product.create(
-    name="T-shirt",
-    description="Comfortable cotton t-shirt",
-)
+def create_stripe_products():
+    products = Product.query.all()
+    stripe_products = []
 
-# Create a price for the product
-price = stripe.Price.create(
-    product=product.id,
-    unit_amount=2000,  # Amount in cents (e.g., $20.00)
-    currency="usd",
-)
+    for product in products:
+        stripe_product = stripe.Product.create(
+            name=product.name,
+            description=product.description,
+        )
+        stripe_price = stripe.Price.create(
+            product=stripe_product.id,
+            unit_amount=int(product.price * 100), # Price in cents
+            currency='usd',
+        )
+        stripe_products.append({
+            'product_id': stripe_product.id,
+            'price_id': stripe_price.id,
+        })
 
-print(f"Product ID: {product.id}")
-print(f"Price ID: {price.id}")
+    return stripe_products
 
 # Run Flask App
 if __name__ == "__main__":
