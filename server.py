@@ -2,8 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql  # Ensure you have this installed (`pip install pymysql`)
-
-
+from sqlalchemy import select
 app = Flask(__name__)
 
 # Remote MySQL Database Connection
@@ -53,9 +52,15 @@ class Products(db.Model):
     image_url = db.Column(db.String(255), nullable=False)
 
 # Home Page
-@app.route("/")
+@app.route("/",methods=["POST","GET"])
 def index():
-    return render_template("index.html")
+    if request.method == "GET":
+        
+       products_list = Products.query.all()
+    
+    
+    
+    return render_template("index.html",products = products_list)
 
 # Registration Page (GET and POST)
 @app.route("/register", methods=["GET", "POST"])
@@ -99,7 +104,7 @@ def login():
 
             session["user_id"] = user.id  # Store user ID in session
             
-            return redirect(url_for("dashboard"))  # Redirect to dashboard
+            return redirect(url_for("index"))  # Redirect to dashboard
         else:
             flash("Invalid Credentials. Try Again.", "danger")
             return redirect(url_for("index"))
@@ -116,7 +121,7 @@ def get_or_create_cart(user_id):
     return cart
 
 # Add product to cart
-@app.route("/index/add/<int:product_id>", methods=["POST"])
+@app.route("/add/<int:product_id>", methods=["GET","POST"])
 def add_to_cart(product_id):
     if "user_id" not in session:
         flash("You must be logged in to add items to your cart.", "danger")
