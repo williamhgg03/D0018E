@@ -30,11 +30,13 @@ class User(db.Model):
     username = db.Column(db.String(100), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)  # Store hashed passwords
 
+# Defining the actual shopping cart model
 class Shopping_Cart(db.Model):
     __tablename__ = "shopping_cart"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+# Defining shopping cart items model
 class Shopping_Cart_Items(db.Model):
     __tablename__ = "shopping_cart_items"
     id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +61,7 @@ def index():
     products = Product.query.all()  # Hämta alla produkter från databasen
     return render_template("index.html", products=products)
 
-# Registration Page (GET and POST)
+# Registration Page 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -186,6 +188,49 @@ def clear_cart():
 @app.route("/dashboard")
 def dashboard():
     return "<h1>Welcome to the Dashboard!</h1>"
+
+# Search Route
+@app.route("/search", methods=["GET"])
+def search():
+    query = request.args.get("query")
+    if query:
+        products = Product.query.filter(Product.name.ilike(f"%{query}%") | Product.description.ilike(f"%{query}%")).all()
+    else:
+        products = Product.query.all()
+    return render_template("index.html", products=products)
+
+# Define Review Model WIP
+class Review(db.Model):
+    __tablename__ = "reviews"
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+
+# # Product Info Route WIP
+# @app.route("/product/<int:product_id>", methods=["GET", "POST"])
+# def product_info(product_id):
+#     product = Product.query.get_or_404(product_id)
+#     reviews = Review.query.filter_by(product_id=product_id).all()
+
+#     if request.method == "POST":
+#         if "user_id" not in session:
+#             flash("You must be logged in to leave a review.", "danger")
+#             return redirect(url_for("login"))
+
+#         user_id = session["user_id"]
+#         content = request.form.get("content")
+#         rating = request.form.get("rating")
+
+#         new_review = Review(product_id=product_id, user_id=user_id, content=content, rating=rating)
+#         db.session.add(new_review)
+#         db.session.commit()
+#         flash("Review added successfully!", "success")
+#         return redirect(url_for("product_info", product_id=product_id))
+
+#     return render_template("product_info.html", product=product, reviews=reviews)
+
 
 
 # Run Flask App
