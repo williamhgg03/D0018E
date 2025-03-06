@@ -42,7 +42,7 @@ class WebsiteUser(HttpUser):
         """Försöker checka ut"""
         self.client.post("/cart/checkout")
 
-    @task(1)
-    def logout(self):
-        """Loggar ut användaren"""
-        self.client.get("/logout")
+    # @task(1) # Fungerar eller inte? inte helt säker på om det gör någon skillnad.
+    # def logout(self):
+    #     """Loggar ut användaren"""
+    #     self.client.get("/logout")
