@@ -71,7 +71,7 @@
             background-color: #45a049;
         }
 
-                /* Product Card */
+        /* Product Card */
         .product-card {
             width: 300px;
             border-radius: 10px;
@@ -127,7 +127,7 @@
         }
 
         .add-to-cart-btn:hover {
-            background-color: #d64c3a;
+            background-color: #45a049;
         }
 
         /* FontAwesome Shopping Cart Icon */
@@ -171,9 +171,14 @@
     <div class="main">
         <h1>Welcome to the Military's Surplus</h1>
         <h2>We got everything that you could want in stock</h2>
-        <p>Login below to shop from our selection of products <a href="/login">login</a></p>
-        <p>Don't have an account? <a href="/register">Register here</a></p>
-        <a href="/password_reset.html">Forgot Password?</a>
+        {% if session.get('user_id') %}
+            <p>Welcome, {{ username }}!</p>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <p>Login below to shop from our selection of products <a href="/login">login</a></p>
+            <p>Don't have an account? <a href="/register">Register here</a></p>
+            <a href="/password_reset.html">Forgot Password?</a>
+        {% endif %}
 
         <form class="search_form" action="/search" method="GET">
             <input type="text" name="query" placeholder="Search for products...">

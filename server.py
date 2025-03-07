@@ -98,10 +98,15 @@ class Reviews(db.Model):
 
 
 # Home Page
-@app.route("/",methods=["POST","GET"])
+@app.route("/", methods=["POST", "GET"])
 def index():
-    products = Product.query.all()  # Hämta alla produkter från databasen
-    return render_template("index.html", products=products)
+    products = Product.query.all()  # Fetch all products from the database
+    username = None
+    if "user_id" in session:
+        user = User.query.get(session["user_id"])
+        if user:
+            username = user.username
+    return render_template("index.html", products=products, username=username)
 
 # Registration Page 
 @app.route("/register", methods=["GET", "POST"])
@@ -511,6 +516,12 @@ def delete_product(product_id):
     else:
         flash("Product not found.", "danger")
     return redirect(url_for("admin_dashboard"))
+
+@app.route("/logout")
+def logout():
+    session.pop("user_id", None)
+    flash("You have been logged out.", "success")
+    return redirect(url_for("index"))
 
 # Run Flask App
 if __name__ == "__main__":
