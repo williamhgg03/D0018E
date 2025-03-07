@@ -36,6 +36,7 @@ class User(db.Model):
     __tablename__ = "users"  # Ensure this matches your MySQL table name
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
+    email = db.Column(db.String(100), nullable=False, unique=True)  # Add email field
     password_hash = db.Column(db.String(255), nullable=False)  # Store hashed passwords
 
 # Defining the actual shopping cart model
@@ -112,20 +113,21 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name = request.form.get("username")
+        username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
         
-        # Check if username already exists
-        existing_user = User.query.filter_by(username=name).first()
+        # Check if username or email already exists
+        existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
         if existing_user:
-            flash("Username already taken. Please choose another.", "danger")
+            flash("Username or email already taken. Please choose another.", "danger")
             return redirect(url_for("register"))
 
         # Hash password before storing it
         hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
         
         # Create new user and add to database
-        new_user = User(username=name, password_hash=hashed_password)
+        new_user = User(username=username, email=email, password_hash=hashed_password)
         db.session.add(new_user)
         db.session.commit()
 
@@ -415,7 +417,42 @@ def create_stripe_products():
 def admin_dashboard():
     products = Product.query.all()
     orders = Orders.query.order_by(Orders.created_at.desc()).all()  # Fetch orders sorted by date in descending order
-    return render_template("admin.html", products=products, orders=orders)
+    users = User.query.all()  # Fetch all users
+    return render_template("admin.html", products=products, orders=orders, users=users)
+
+@app.route("/create_user", methods=["POST"])
+def create_user():
+    username = request.form.get("username")
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    # Check if username already exists
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        flash("Username already taken. Please choose another.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    # Hash password before storing it
+    hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
+
+    # Create new user and add to database
+    new_user = User(username=username, email=email, password_hash=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    flash("New user created successfully.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/delete_user/<int:user_id>", methods=["POST"])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        flash(f"User {user.username} removed successfully.", "success")
+    else:
+        flash("User not found.", "danger")
+    return redirect(url_for("admin_dashboard"))
 
 @app.route("/update_stock/<int:product_id>", methods=["POST"])
 def update_stock(product_id):

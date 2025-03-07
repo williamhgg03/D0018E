@@ -5,70 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Registration Form</title>
     <style>
-      body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-.main {
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    width: 300px;
-}
+        .main {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 300px;
+        }
 
-.main h2 {
-    color: #4caf50;
-    margin-bottom: 20px;
-}
+        .main h2 {
+            color: #4caf50;
+            margin-bottom: 20px;
+        }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    color: #555;
-    font-weight: bold;
-}
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-select {
-    width: 100%;
-    margin-bottom: 15px;
-    padding: 10px;
-    box-sizing: border-box;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
 
-button[type="submit"] {
-    padding: 15px;
-    border-radius: 10px;
-    border: none;
-    background-color: #4caf50;
-    color: white;
-    cursor: pointer;
-    width: 100%;
-    font-size: 16px;
-}
-button[type="button"] {
-    padding: 15px;
-    border-radius: 10px;
-    border: none;
-    background-color: #4caf50;
-    color: white;
-    cursor: pointer;
-    width: 100%;
-    font-size: 16px;
-    align-items: center;
-}
-  
+        button[type="submit"],
+        button[type="button"] {
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button[type="button"] {
+            margin-top: 10px;
+        }
+
+        button[type="button"] a {
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -76,8 +74,11 @@ button[type="button"] {
     <div class="main">
         <h2>Registration Form</h2>
         <form action="/register" method="POST">
-            <label for="first">Username:</label>
-            <input type="text" id="first" name="username" placeholder="Enter Username" required />
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter Username" required />
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter Email" required />
 
             <label for="password">Password:</label>
             <input type="password" id="password" name="password"
@@ -86,15 +87,10 @@ button[type="button"] {
                            one alphabet, one symbol, and be at 
                            least 8 characters long" placeholder="Enter Password" required />
 
-            <button type="submit">
-                Register
-            </button>
+            <button type="submit">Register</button>
             <label>Already a User?</label>
-            <button type="button"><a href="/"></a>
-            Log in
-            </button>
+            <button type="button"><a href="/login">Log in</a></button>
         </form>
     </div>
 </body>
-
 </html>
