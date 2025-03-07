@@ -289,14 +289,14 @@ def create_stripe_products():
 # Admin Dashboard Page
 @app.route("/admin")
 def admin_dashboard():
-    products = Products.query.all()
+    products = Product.query.all()
     orders = Orders.query.order_by(Orders.created_at.desc()).all()  # Fetch orders sorted by date in descending order
     return render_template("admin.html", products=products, orders=orders)
 
 @app.route("/update_stock/<int:product_id>", methods=["POST"])
 def update_stock(product_id):
     action = request.form.get("action")
-    product = Products.query.get(product_id)
+    product = Product.query.get(product_id)
     
     if product:
         if action == "increase":
@@ -313,7 +313,7 @@ def update_stock(product_id):
 @app.route("/update_price/<int:product_id>", methods=["POST"])
 def update_price(product_id):
     new_price = request.form.get("new_price")
-    product = Products.query.get(product_id)
+    product = Product.query.get(product_id)
     
     if product:
         try:
@@ -339,7 +339,7 @@ def create_product():
     stock = request.form.get("stock")
     image_url = request.form.get("image_url")
 
-    new_product = Products(
+    new_product = Product(
         name=name,
         description=description,
         price=float(price),
