@@ -46,10 +46,10 @@ class Shopping_Cart_Items(db.Model):
     __tablename__ = "shopping_cart_items"
     id = db.Column(db.Integer, primary_key=True)
     shopping_cart_id = db.Column(db.Integer, db.ForeignKey('shopping_cart.id'),  nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'),  nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'),  nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-class Products(db.Model):
+class Product(db.Model):
     __tablename__ = "products"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -63,7 +63,7 @@ class Products(db.Model):
 def index():
     if request.method == "GET":
         
-       products_list = Products.query.all()
+       products_list = Product.query.all()
     
     
     
@@ -160,7 +160,7 @@ def view_cart():
     cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
     items = []
     if cart:
-        items = db.session.query(Shopping_Cart_Items, Products).join(Products).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+        items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
     return render_template("cart.html", items=items)
 
 # Remove item from cart
@@ -209,7 +209,7 @@ def create_checkout_session():
         flash("Your cart is empty.", "danger")
         return redirect(url_for("view_cart"))
 
-    items = db.session.query(Shopping_Cart_Items, Products).join(Products).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+    items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
     if not items:
         flash("Your cart is empty.", "danger")
         return redirect(url_for("view_cart"))
