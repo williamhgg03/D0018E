@@ -1,1 +1,5 @@
-update users set email="testemail" where id = 1;
+<<<<<<< HEAD
+SELECT * FROM products;
+=======
+SELECT * FROM users
+>>>>>>> jacob

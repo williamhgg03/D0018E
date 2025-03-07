@@ -4,14 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Military Surplus Warehouse</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles/index.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            background: #f3f3f3;
+            flex-direction: column;
+            margin: 0;
+            position: relative;
+        }
+
+        .main {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            transition: transform 0.2s;
+            width: 80%;
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #4CAF50;
+        }
+
+        p {
+            color: #555;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .search_form {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .search_form input[type="text"] {
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px 0 0 5px;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        .search_form button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .search_form button:hover {
+            background-color: #45a049;
+        }
+
+                /* Product Card */
+        .product-card {
+            width: 300px;
+            border-radius: 10px;
+            overflow: hidden; /* Ensures everything stays within the card */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a soft shadow */
+            background-color: #fff;
+            text-align: center;
+            padding: 15px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        /* Hover effect */
+        .product-card:hover {
+            transform: scale(1.05); /* Slightly enlarges the card on hover */
+        }
+
+        /* Product Image */
+        .product-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        /* Product Description */
+        .product-description {
+            padding: 10px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-size: 16px;
+            color: #2a9d8f; /* Stylish green price */
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Add to Cart Button */
+        .add-to-cart-btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: #d64c3a;
+        }
+
+        /* FontAwesome Shopping Cart Icon */
+        .add-to-cart-btn i {
+            margin-right: 5px;
+        }
+
+        .shopping_cart {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #4CAF50;
+            cursor: pointer;
+        }
+
+        .shopping_cart img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .shopping_cart_background {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: -1;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Military's Surplus</h1>
-    <h2>We got everything that you could want in stock</h2>
-    <p>Login below to view our selection of products <a href="/login">login</a></p>
-    
-    <p>Don't have an account? <a href="/register">Register here</a></p>
+    <div class="shopping_cart">
+        <a href="/cart">
+            <img src="/static/images/shopping-cart.png" alt="Shopping Cart">
+        </a>
+    </div>
+    <div class="main">
+        <h1>Welcome to the Military's Surplus</h1>
+        <h2>We got everything that you could want in stock</h2>
+        <p>Login below to shop from our selection of products <a href="/login">login</a></p>
+        <p>Don't have an account? <a href="/register">Register here</a></p>
+        <a href="/password_reset.html">Forgot Password?</a>
 
-    <a href="/password_reset.html">Forgot Password?</a>
+        <form class="search_form" action="/search" method="GET">
+            <input type="text" name="query" placeholder="Search for products...">
+            <button type="submit">Search</button>
+        </form>
+
+        <div class="product_catalog">
+            {% for product in products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                    </div>
+                    <div class="product-description">
+                        <a href="/product_view/{{ product.id }}">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                        </a>
+                        <p class="product-price">${{ product.price }}</p>
+                        <a href="/add/{{ product.id }}" class="add-to-cart-btn">
+                            Add to Cart
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
 </body>
 </html>
