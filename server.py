@@ -160,14 +160,15 @@ def product_view(product_id):
     product = Product.query.filter_by(id=product_id).first()
     reviews = Reviews.query.filter_by(product_id=product_id).all()
 
-    review = request.form.get("new_review")
-    rating = request.form.get("rating")
-
-    if review and rating:
-        user = User.query.filter_by(id=session["user_id"]).first()
-        new_review = Reviews(product_id=product_id, username=user.username, rating=rating, review=review, created_at=db.func.now())
-        db.session.add(new_review)
-        db.session.commit()
+    if request.method == "POST":
+        review = request.form.get("new_review")
+        rating = request.form.get("rating")
+        if review and rating:
+            user = User.query.filter_by(id=session["user_id"]).first()
+            new_review = Reviews(product_id=product_id, username=user.username, rating=rating, review=review, created_at=db.func.now())
+            db.session.add(new_review)
+            db.session.commit()
+            return redirect(url_for("product_view", product_id=product_id)) # Refresh page to prevent new review from generating every time
     
     return render_template("product_view.html", product=product, reviews=reviews)
 
