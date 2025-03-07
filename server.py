@@ -2,6 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql  # Ensure you have this installed (`pip install pymysql`)
+import stripe
+import os
+import dotenv
+
+
+dotenv.load_dotenv()
 from sqlalchemy import select
 app = Flask(__name__)
 
@@ -21,6 +27,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 #session(app)
 
 db = SQLAlchemy(app)
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 
 # Define User Model
@@ -41,14 +48,13 @@ class Shopping_Cart_Items(db.Model):
     __tablename__ = "shopping_cart_items"
     id = db.Column(db.Integer, primary_key=True)
     shopping_cart_id = db.Column(db.Integer, db.ForeignKey('shopping_cart.id'),  nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'),  nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'),  nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-# Class to represent 
 class Product(db.Model):
-    __tablename__= "products"
-    id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String(100))
+    __tablename__ = "products"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=False)
     price = db.Column(db.String(255),nullable=False)
     stock = db.Column(db.Integer,nullable=False)
@@ -232,6 +238,83 @@ class Review(db.Model):
 #     return render_template("product_info.html", product=product, reviews=reviews)
 
 
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    if "user_id" not in session:
+        flash("You must be logged in to checkout.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
+    if not cart:
+        flash("Your cart is empty.", "danger")
+        return redirect(url_for("view_cart"))
+
+    items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+    if not items:
+        flash("Your cart is empty.", "danger")
+        return redirect(url_for("view_cart"))
+
+    line_items = []
+    for item, product in items:
+        stripe_product = stripe.Product.create(
+            name=product.name,
+            description=product.description,
+        )
+        stripe_price = stripe.Price.create(
+            product=stripe_product.id,
+            unit_amount=int(product.price * 100),  # Price in cents
+            currency='usd',
+        )
+        line_items.append({
+            'price': stripe_price.id,
+            'quantity': item.quantity,
+        })
+
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=line_items,
+            mode='payment',
+            success_url=url_for('success', _external=True),
+            cancel_url=url_for('cancel', _external=True),
+        )
+    except Exception as e:
+        return str(e)
+
+    return redirect(checkout_session.url, code=303)
+
+@app.route("/checkout.html")
+def checkout():
+    return render_template("checkout.html")
+
+@app.route("/success.html")
+def success():
+    return render_template("success.html")
+    
+@app.route("/cancel.html")
+def cancel():
+    return render_template("cancel.html")
+
+def create_stripe_products():
+    products = Product.query.all()
+    stripe_products = []
+
+    for product in products:
+        stripe_product = stripe.Product.create(
+            name=product.name,
+            description=product.description,
+        )
+        stripe_price = stripe.Price.create(
+            product=stripe_product.id,
+            unit_amount=int(product.price * 100), # Price in cents
+            currency='usd',
+        )
+        stripe_products.append({
+            'product_id': stripe_product.id,
+            'price_id': stripe_price.id,
+        })
+
+    return stripe_products
 
 # Run Flask App
 if __name__ == "__main__":
