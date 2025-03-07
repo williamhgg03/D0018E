@@ -96,13 +96,6 @@ class Reviews(db.Model):
         CheckConstraint('rating >= 1 AND rating <= 5', name='check_rating_range'),
     )
 
-class Orders(db.Model):
-    __tablename__ = "orders"
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    total = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(50), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
 
 # Home Page
 @app.route("/",methods=["POST","GET"])
