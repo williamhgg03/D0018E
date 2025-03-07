@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{product.name}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .left-column {
+            width: 300px;
+        }
+        .product {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .write-review {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+        }
+        .reviews {
+            flex: 1;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+        .product img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .add-to-cart-btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #d64c3a;
+        }
+        input, button {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-column">
+            <div class="product">
+                <img src="{{product.image_url}}" alt="{{ product.name }}">
+                <h2>{{product.name}}</h2>
+                <p>{{product.description}}</p>
+                <p><strong>USD {{product.price}}</strong></p>
+                <a href="/add/{{ product.id }}" class="add-to-cart-btn">Add to Cart</a>
+            </div>
+            <div class="write-review">
+                <form action="/product_view/{{product.id}}" method="POST">
+                    <input type="text" name="rating" placeholder="Enter your rating here" required>
+                    <input type="text" name="new_review" placeholder="Write your review here" required>
+                    <button type="submit">Submit Review</button>
+                </form>
+            </div>
+        </div>
+        <div class="reviews">
+            <h3>Customer Reviews</h3>
+            {% for review in reviews %}
+            <div class="review">
+                <h4>{{ review.username }}</h4>
+                <p>{{ review.rating }} / 5 - {{ review.review }}</p>
+                <p>Posted at: {{ review.created_at }}</p>
+                <hr>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
