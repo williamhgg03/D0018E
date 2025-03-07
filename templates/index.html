@@ -45,24 +45,29 @@
 
         .product_catalog {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Anpassar sig efter skärmbredd */
             gap: 20px;
-            margin-top: 20px;
+            width: 100%; /* Gör att den fyller main-diven */
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 10px;
         }
-
         .product_card {
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             transition: transform 0.2s;
+            width: 100%; /* Se till att korten fyller sin grid-cell */
+            max-width: 300px; /* Hindrar dem från att bli för breda */
+            text-align: center;
         }
 
         .product_card:hover {
             transform: scale(1.05);
         }
 
+        
         .product_image {
             width: 100%;
             height: 200px;
@@ -114,10 +119,30 @@
 <body>
     <script>
 
-<<<<<<< HEAD
-    <a href="/password_reset.html">Forgot Password?</a>
-    <a href="/checkout.html">Checkout</a>
-=======
+        // Fetch products from the API
+        fetch('/api/products')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                const products = data.products;
+                const productCatalog = document.querySelector('.product_catalog');
+                products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product_card';
+                    productCard.innerHTML = `
+                        <div class="product_image"></div>
+                        <div class="product_description">
+                            <div class="product_description_text">${product.name}</div>
+                            <div class="product_description_text">${product.description}</div>
+                            <div class="product_description_price">$${product.price}</div>
+                            <div class="product_description_cart">
+                                <button>Add to cart</button>
+                            </div>
+                        </div>
+                    `;
+                    productCatalog.appendChild(productCard);
+                });
+            });
 
     </script>
     <div class="shopping_cart">
@@ -133,39 +158,24 @@
         <a href="/password_reset.html">Forgot Password?</a>
 
         <div class="product_catalog">
-            <div class="product_card">
-                <div class="product_image"></div>
-                <div class="product_description">
-                    <div class="product_description_text">{{products}}</div>
-                    <div class="product_description_price">{{products.price}}</div>
-                    <div class="product_description_cart">
-                        <a href="/add/1"><button>Add to cart</button></a>
+            <div class="product_catalog">
+            {% for product in products %}
+                <div class="product_card">
+                    <div class="product_image"></div>
+                    <div class="product_description">
+                        <div class="product_description_text">{{ product.name }}</div>
+                        <div class="product_description_text">{{ product.description }}</div>
+                        <div class="product_description_price">${{ product.price }}</div>
+                        <div class="product_description_cart">
+                            <button>Add to cart</button>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            <div class="product_card">
-                <div class="product_image"></div>
-                <div class="product_description">
-                    <div class="product_description_text">Product 2 Description</div>
-                    <div class="product_description_price">$20.00</div>
-                    <div class="product_description_cart">
-                        <button>Add to cart</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product_card">
-                <div class="product_image"></div>
-                <div class="product_description">
-                    <div class="product_description_text">Product 3 Description</div>
-                    <div class="product_description_price">$30.00</div>
-                    <div class="product_description_cart">
-                        <button>Add to cart</button>
-                    </div>
-                </div>
-            </div>
-            <!-- Repeat the product_card div as needed -->
+
         </div>
     </div>
->>>>>>> origin/william
+
 </body>
 </html>
