@@ -49,7 +49,7 @@ class Shopping_Cart_Items(db.Model):
     __tablename__ = "shopping_cart_items"
     id = db.Column(db.Integer, primary_key=True)
     shopping_cart_id = db.Column(db.Integer, db.ForeignKey('shopping_cart.id'),  nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'),  nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'),  nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
 class Product(db.Model):
@@ -256,14 +256,7 @@ def search():
         products = Product.query.all()
     return render_template("index.html", products=products)
 
-# Define Review Model WIP
-class Review(db.Model):
-    __tablename__ = "reviews"
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
+
 
 # # Product Info Route WIP
 # @app.route("/product/<int:product_id>", methods=["GET", "POST"])
