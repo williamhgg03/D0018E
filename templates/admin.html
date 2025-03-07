@@ -5,6 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            background: #f3f3f3;
+            flex-direction: column;
+            margin: 0;
+            position: relative;
+        }
+
+        .main {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            transition: transform 0.2s;
+            width: 80%;
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #4CAF50;
+        }
+
+        p {
+            color: #555;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
         .orders-box {
             width: 100%;
             height: 300px;
@@ -12,87 +49,240 @@
             border: 1px solid #ccc;
             margin-top: 20px;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        form {
+            display: inline;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            width: calc(100% - 24px);
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .flash-message.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .flash-message.danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1>Admin Dashboard</h1>
-    
-    <h2>Create New Product</h2>
-    <form action="{{ url_for('create_product') }}" method="POST">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br>
-        <label for="description">Description:</label>
-        <input type="text" id="description" name="description" required><br>
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" step="0.01" required><br>
-        <label for="stock">Stock:</label>
-        <input type="number" id="stock" name="stock" required><br>
-        <label for="image_url">Image URL:</label>
-        <input type="text" id="image_url" name="image_url" required><br>
-        <button type="submit">Create Product</button>
-    </form>
+    <div class="main">
+        <h1>Admin Dashboard</h1>
 
-    <h2>Stock Information</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Product ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Image</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>{{ product.id }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.description }}</td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.stock }}</td>
-                <td><img src="{{ product.image_url }}" alt="{{ product.name }}" width="100"></td>
-                <td>
-                    <form action="{{ url_for('update_stock', product_id=product.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" name="action" value="increase">Increase Stock</button>
-                        <button type="submit" name="action" value="decrease">Decrease Stock</button>
-                    </form>
-                    <form action="{{ url_for('update_price', product_id=product.id) }}" method="POST" style="display:inline;">
-                        <input type="number" name="new_price" step="0.01" placeholder="New Price" required>
-                        <button type="submit">Update Price</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flashModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <h2>Create New Product</h2>
+        <form action="{{ url_for('create_product') }}" method="POST">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br>
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" required><br>
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" step="0.01" required><br>
+            <label for="stock">Stock:</label>
+            <input type="number" id="stock" name="stock" required><br>
+            <label for="image_url">Image URL:</label>
+            <input type="text" id="image_url" name="image_url" required><br>
+            <button type="submit">Create Product</button>
+        </form>
 
-    <h2>Orders</h2>
-    <div class="orders-box">
-        <table border="1" width="100%">
+        <h2>Stock Information</h2>
+        <table>
             <thead>
                 <tr>
-                    <th>Order ID</th>
-                    <th>User ID</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Created At</th>
+                    <th>Product ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Image</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for order in orders %}
+                {% for product in products %}
                 <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.user_id }}</td>
-                    <td>{{ order.total }}</td>
-                    <td>{{ order.status }}</td>
-                    <td>{{ order.created_at }}</td>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>{{ product.price }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td><img src="{{ product.image_url }}" alt="{{ product.name }}" width="100"></td>
+                    <td>
+                        <form action="{{ url_for('update_stock', product_id=product.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" name="action" value="increase">Increase Stock</button>
+                            <button type="submit" name="action" value="decrease">Decrease Stock</button>
+                        </form>
+                        <form action="{{ url_for('update_price', product_id=product.id) }}" method="POST" style="display:inline;">
+                            <input type="number" name="new_price" step="0.01" placeholder="New Price" required>
+                            <button type="submit">Update Price</button>
+                        </form>
+                        <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Remove Product</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        <h2>Orders</h2>
+        <div class="orders-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User ID</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.user_id }}</td>
+                        <td>{{ order.total }}</td>
+                        <td>{{ order.status }}</td>
+                        <td>{{ order.created_at }}</td>
+                        <td>
+                            {% if order.status == 'pending' %}
+                            <form action="{{ url_for('complete_order', order_id=order.id) }}" method="POST" style="display:inline;">
+                                <button type="submit">Complete Order</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <script>
+        // Get the modal
+        var modal = document.getElementById("flashModal");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Show the modal
+        if (modal) {
+            modal.style.display = "block";
+        }
+    </script>
 </body>
 </html>

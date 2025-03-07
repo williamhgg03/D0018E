@@ -335,6 +335,7 @@ def create_checkout_session():
             mode='payment',
             success_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/success.html",
             cancel_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/cancel.html",
+            
         )
     except Exception as e:
         return str(e)
@@ -418,10 +419,15 @@ def update_stock(product_id):
     if product:
         if action == "increase":
             product.stock += 1
-        elif action == "decrease" and product.stock > 0:
-            product.stock -= 1
-        db.session.commit()
-        flash(f"Stock for {product.name} updated successfully.", "success")
+            db.session.commit()
+            flash(f"Stock for {product.name} increased successfully.", "success")
+        elif action == "decrease":
+            if product.stock > 0:
+                product.stock -= 1
+                db.session.commit()
+                flash(f"Stock for {product.name} decreased successfully.", "success")
+            else:
+                flash("Stock cannot be less than 0.", "danger")
     else:
         flash("Product not found.", "danger")
     
@@ -435,7 +441,9 @@ def update_price(product_id):
     if product:
         try:
             new_price_float = float(new_price)
-            if new_price_float > 999999.99:
+            if new_price_float < 0.01:
+                flash("Price cannot be less than $0.01.", "danger")
+            elif new_price_float > 999999.99:
                 flash("Price cannot exceed $999,999.99.", "danger")
             else:
                 product.price = new_price_float
@@ -456,17 +464,52 @@ def create_product():
     stock = request.form.get("stock")
     image_url = request.form.get("image_url")
 
-    new_product = Product(
-        name=name,
-        description=description,
-        price=float(price),
-        stock=int(stock),
-        image_url=image_url
-    )
-    db.session.add(new_product)
-    db.session.commit()
-    flash("New product created successfully.", "success")
-    
+    try:
+        price_float = float(price)
+        stock_int = int(stock)
+        if price_float < 0.01:
+            flash("Price cannot be less than $0.01.", "danger")
+        elif price_float > 999999.99:
+            flash("Price cannot exceed $999,999.99.", "danger")
+        elif stock_int < 1:
+            flash("Stock cannot be less than 1.", "danger")
+        else:
+            new_product = Product(
+                name=name,
+                description=description,
+                price=price_float,
+                stock=stock_int,
+                image_url=image_url
+            )
+            db.session.add(new_product)
+            db.session.commit()
+            flash("New product created successfully.", "success")
+            return redirect(url_for("admin_dashboard"))
+    except ValueError:
+        flash("Invalid price or stock value.", "danger")
+
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/complete_order/<int:order_id>", methods=["POST"])
+def complete_order(order_id):
+    order = Orders.query.get(order_id)
+    if order and order.status == 'pending':
+        order.status = 'completed'
+        db.session.commit()
+        flash(f"Order {order.id} marked as completed.", "success")
+    else:
+        flash("Order not found or already completed.", "danger")
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/delete_product/<int:product_id>", methods=["POST"])
+def delete_product(product_id):
+    product = Product.query.get(product_id)
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        flash(f"Product {product.name} removed successfully.", "success")
+    else:
+        flash("Product not found.", "danger")
     return redirect(url_for("admin_dashboard"))
 
 # Run Flask App
