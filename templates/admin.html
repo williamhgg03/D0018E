@@ -216,6 +216,10 @@
                             <input type="number" name="new_price" step="0.01" placeholder="New Price" required>
                             <button type="submit">Update Price</button>
                         </form>
+                        <form action="{{ url_for('update_description', product_id=product.id) }}" method="POST" style="display:inline;">
+                            <input type="text" name="new_description" placeholder="New Description" required>
+                            <button type="submit">Update Description</button>
+                        </form>
                         <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST" style="display:inline;">
                             <button type="submit">Remove Product</button>
                         </form>

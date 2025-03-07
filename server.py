@@ -101,7 +101,36 @@ class Reviews(db.Model):
 # Home Page
 @app.route("/", methods=["POST", "GET"])
 def index():
+    sort = request.args.get("sort")
     products = Product.query.all()  # Fetch all products from the database
+
+    # Calculate average rating for each product
+    for product in products:
+        reviews = Reviews.query.filter_by(product_id=product.id).all()
+        if reviews:
+            avg_rating = sum(review.rating for review in reviews) / len(reviews)
+            product.avg_rating = round(avg_rating)
+        else:
+            product.avg_rating = 0
+
+    # Sort products based on the selected criteria
+    if sort == "name_asc":
+        products = sorted(products, key=lambda x: x.name)
+    elif sort == "name_desc":
+        products = sorted(products, key=lambda x: x.name, reverse=True)
+    elif sort == "price_asc":
+        products = sorted(products, key=lambda x: x.price)
+    elif sort == "price_desc":
+        products = sorted(products, key=lambda x: x.price, reverse=True)
+    elif sort == "stock_asc":
+        products = sorted(products, key=lambda x: x.stock)
+    elif sort == "stock_desc":
+        products = sorted(products, key=lambda x: x.stock, reverse=True)
+    elif sort == "rating_asc":
+        products = sorted(products, key=lambda x: x.avg_rating)
+    elif sort == "rating_desc":
+        products = sorted(products, key=lambda x: x.avg_rating, reverse=True)
+
     username = None
     if "user_id" in session:
         user = User.query.get(session["user_id"])
@@ -494,6 +523,20 @@ def update_price(product_id):
                 flash(f"Price for {product.name} updated successfully.", "success")
         except ValueError:
             flash("Invalid price value.", "danger")
+    else:
+        flash("Product not found.", "danger")
+    
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/update_description/<int:product_id>", methods=["POST"])
+def update_description(product_id):
+    new_description = request.form.get("new_description")
+    product = Product.query.get(product_id)
+    
+    if product:
+        product.description = new_description
+        db.session.commit()
+        flash(f"Description for {product.name} updated successfully.", "success")
     else:
         flash("Product not found.", "danger")
     

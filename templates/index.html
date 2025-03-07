@@ -71,6 +71,50 @@
             background-color: #45a049;
         }
 
+        .sort-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .sort-button:hover {
+            background-color: #45a049;
+        }
+
+        .sort-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .sort-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .sort-dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sort-dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .sort-dropdown:hover .sort-dropdown-content {
+            display: block;
+        }
+
         /* Product Card */
         .product-card {
             width: 300px;
@@ -179,6 +223,12 @@
         .order_history a:hover {
             text-decoration: underline;
         }
+
+        .stars {
+            display: inline-block;
+            color: #FFD700;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -207,6 +257,19 @@
         <form class="search_form" action="/search" method="GET">
             <input type="text" name="query" placeholder="Search for products...">
             <button type="submit">Search</button>
+            <div class="sort-dropdown">
+                <button class="sort-button">Sort</button>
+                <div class="sort-dropdown-content">
+                    <a href="?sort=name_asc">Name Ascending</a>
+                    <a href="?sort=name_desc">Name Descending</a>
+                    <a href="?sort=price_asc">Price Low to High</a>
+                    <a href="?sort=price_desc">Price High to Low</a>
+                    <a href="?sort=stock_asc">Stock Low to High</a>
+                    <a href="?sort=stock_desc">Stock High to Low</a>
+                    <a href="?sort=rating_asc">Rating Low to High</a>
+                    <a href="?sort=rating_desc">Rating High to Low</a>
+                </div>
+            </div>
         </form>
 
         <div class="product_catalog">
@@ -220,6 +283,15 @@
                             <h3 class="product-name">{{ product.name }}</h3>
                         </a>
                         <p class="product-price">${{ product.price }}</p>
+                        <div class="stars">
+                            {% for i in range(1, 6) %}
+                                {% if i <= product.avg_rating %}
+                                    &#9733;
+                                {% else %}
+                                    &#9734;
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                         <a href="/add/{{ product.id }}" class="add-to-cart-btn">
                             Add to Cart
                         </a>
@@ -231,3 +303,4 @@
 
 </body>
 </html>
+
