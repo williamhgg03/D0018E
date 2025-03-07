@@ -120,7 +120,7 @@ def login():
             session["user_id"] = user.id  # Store user ID in session
             
             if name == "admin":
-                return redirect(url_for("admin"))  # Redirect to admin dashboard
+                return redirect(url_for("admin_dashboard"))  # Redirect to admin dashboard
             else:
                 return redirect(url_for("index"))  # Redirect to dashboard
         else:
