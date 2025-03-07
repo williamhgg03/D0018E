@@ -43,6 +43,34 @@
             text-decoration: none;
         }
 
+        .search_form {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .search_form input[type="text"] {
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px 0 0 5px;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        .search_form button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .search_form button:hover {
+            background-color: #45a049;
+        }
+
                 /* Product Card */
         .product-card {
             width: 300px;
@@ -120,6 +148,18 @@
             width: 50px;
             height: 50px;
         }
+
+        .shopping_cart_background {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: -1;
+        }
     </style>
 </head>
 <body>
@@ -135,8 +175,12 @@
         <p>Don't have an account? <a href="/register">Register here</a></p>
         <a href="/password_reset.html">Forgot Password?</a>
 
+        <form class="search_form" action="/search" method="GET">
+            <input type="text" name="query" placeholder="Search for products...">
+            <button type="submit">Search</button>
+        </form>
+
         <div class="product_catalog">
-            <div class="product_catalog">
             {% for product in products %}
                 <div class="product-card">
                     <div class="product-image">
@@ -152,10 +196,9 @@
                         </a>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-
+            {% endfor %}
         </div>
     </div>
+
 </body>
 </html>

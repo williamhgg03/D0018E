@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles/index.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            background: #f3f3f3;
+            flex-direction: column;
+            margin: 0;
+            position: relative;
+        }
+
+        .main {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            transition: transform 0.2s;
+            width: 80%;
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #4CAF50;
+        }
+
+        p {
+            color: #555;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .review_form {
+            display: flex;
+            flex-direction: column;
+            margin: 20px 0;
+        }
+
+        .review_form textarea {
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .review_form input[type="number"] {
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            width: 100px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .review_form button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .review_form button:hover {
+            background-color: #45a049;
+        }
+
+        .reviews {
+            margin-top: 20px;
+        }
+
+        .review {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .review h3 {
+            margin: 0;
+            color: #4CAF50;
+        }
+
+        .review p {
+            margin: 5px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>{{ product.name }}</h1>
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" style="width: 100%; max-width: 400px;">
+        <p>{{ product.description }}</p>
+        <p><strong>Price:</strong> ${{ product.price }}</p>
+        <p><strong>Stock:</strong> {{ product.stock }}</p>
+
+        <h2>Reviews</h2>
+        <div class="reviews">
+            {% for review in reviews %}
+                <div class="review">
+                    <h3>Rating: {{ review.rating }}/5</h3>
+                    <p>{{ review.content }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h2>Leave a Review</h2>
+        <form class="review_form" action="{{ url_for('product_info', product_id=product.id) }}" method="POST">
+            <textarea name="content" placeholder="Write your review here..." required></textarea>
+            <input type="number" name="rating" min="1" max="5" placeholder="Rating (1-5)" required>
+            <button type="submit">Submit Review</button>
+        </form>
+    </div>
+</body>
+</html>

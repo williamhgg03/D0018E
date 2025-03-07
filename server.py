@@ -38,11 +38,13 @@ class User(db.Model):
     username = db.Column(db.String(100), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)  # Store hashed passwords
 
+# Defining the actual shopping cart model
 class Shopping_Cart(db.Model):
     __tablename__ = "shopping_cart"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+# Defining shopping cart items model
 class Shopping_Cart_Items(db.Model):
     __tablename__ = "shopping_cart_items"
     id = db.Column(db.Integer, primary_key=True)
@@ -50,11 +52,10 @@ class Shopping_Cart_Items(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'),  nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-# Class to represent 
 class Product(db.Model):
-    __tablename__= "products"
-    id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String(100))
+    __tablename__ = "products"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=False)
     price = db.Column(db.String(255),nullable=False)
     stock = db.Column(db.Integer,nullable=False)
@@ -77,6 +78,7 @@ class Order_Items(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
 
+
     __table_args__ = (
         CheckConstraint('quantity > 0', name='check_quantity_positive'),
     )
@@ -94,13 +96,14 @@ class Reviews(db.Model):
         CheckConstraint('rating >= 1 AND rating <= 5', name='check_rating_range'),
     )
 
+
 # Home Page
 @app.route("/",methods=["POST","GET"])
 def index():
     products = Product.query.all()  # Hämta alla produkter från databasen
     return render_template("index.html", products=products)
 
-# Registration Page (GET and POST)
+# Registration Page 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -136,13 +139,16 @@ def login():
 
 
         user = User.query.filter_by(username=name).first()  # Fetch user from database
-        if check_password_hash(user.password_hash, password):
+        if user and check_password_hash(user.password_hash, password):
             flash("Login Successful!", "success")
             print("login successful")
 
             session["user_id"] = user.id  # Store user ID in session
             
-            return redirect(url_for("index"))  # Redirect to dashboard
+            if name == "admin":
+                return redirect(url_for("admin_dashboard"))  # Redirect to admin dashboard
+            else:
+                return redirect(url_for("index"))  # Redirect to dashboard
         else:
             flash("Invalid Credentials. Try Again.", "danger")
             return redirect(url_for("index"))
@@ -244,6 +250,42 @@ def clear_cart():
         flash("Shopping cart cleared.", "success")
     return redirect(url_for("view_cart"))
 
+# Search Route
+@app.route("/search", methods=["GET"])
+def search():
+    query = request.args.get("query")
+    if query:
+        products = Product.query.filter(Product.name.ilike(f"%{query}%") | Product.description.ilike(f"%{query}%")).all()
+    else:
+        products = Product.query.all()
+    return render_template("index.html", products=products)
+
+
+
+# # Product Info Route WIP
+# @app.route("/product/<int:product_id>", methods=["GET", "POST"])
+# def product_info(product_id):
+#     product = Product.query.get_or_404(product_id)
+#     reviews = Review.query.filter_by(product_id=product_id).all()
+
+#     if request.method == "POST":
+#         if "user_id" not in session:
+#             flash("You must be logged in to leave a review.", "danger")
+#             return redirect(url_for("login"))
+
+#         user_id = session["user_id"]
+#         content = request.form.get("content")
+#         rating = request.form.get("rating")
+
+#         new_review = Review(product_id=product_id, user_id=user_id, content=content, rating=rating)
+#         db.session.add(new_review)
+#         db.session.commit()
+#         flash("Review added successfully!", "success")
+#         return redirect(url_for("product_info", product_id=product_id))
+
+#     return render_template("product_info.html", product=product, reviews=reviews)
+
+
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     if "user_id" not in session:
@@ -290,8 +332,8 @@ def create_checkout_session():
         checkout_session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            success_url=url_for('success', _external=True),
-            cancel_url=url_for('cancel', _external=True),
+            success_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/success.html",
+            cancel_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/cancel.html",
         )
     except Exception as e:
         return str(e)
@@ -359,6 +401,72 @@ def create_stripe_products():
         })
 
     return stripe_products
+
+# Admin Dashboard Page
+@app.route("/admin")
+def admin_dashboard():
+    products = Product.query.all()
+    orders = Orders.query.order_by(Orders.created_at.desc()).all()  # Fetch orders sorted by date in descending order
+    return render_template("admin.html", products=products, orders=orders)
+
+@app.route("/update_stock/<int:product_id>", methods=["POST"])
+def update_stock(product_id):
+    action = request.form.get("action")
+    product = Product.query.get(product_id)
+    
+    if product:
+        if action == "increase":
+            product.stock += 1
+        elif action == "decrease" and product.stock > 0:
+            product.stock -= 1
+        db.session.commit()
+        flash(f"Stock for {product.name} updated successfully.", "success")
+    else:
+        flash("Product not found.", "danger")
+    
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/update_price/<int:product_id>", methods=["POST"])
+def update_price(product_id):
+    new_price = request.form.get("new_price")
+    product = Product.query.get(product_id)
+    
+    if product:
+        try:
+            new_price_float = float(new_price)
+            if new_price_float > 999999.99:
+                flash("Price cannot exceed $999,999.99.", "danger")
+            else:
+                product.price = new_price_float
+                db.session.commit()
+                flash(f"Price for {product.name} updated successfully.", "success")
+        except ValueError:
+            flash("Invalid price value.", "danger")
+    else:
+        flash("Product not found.", "danger")
+    
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/create_product", methods=["POST"])
+def create_product():
+    name = request.form.get("name")
+    description = request.form.get("description")
+    price = request.form.get("price")
+    stock = request.form.get("stock")
+    image_url = request.form.get("image_url")
+
+    new_product = Product(
+        name=name,
+        description=description,
+        price=float(price),
+        stock=int(stock),
+        image_url=image_url
+    )
+    db.session.add(new_product)
+    db.session.commit()
+    flash("New product created successfully.", "success")
+    
+    return redirect(url_for("admin_dashboard"))
 
 # Run Flask App
 if __name__ == "__main__":
