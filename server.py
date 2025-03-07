@@ -157,7 +157,6 @@ def product_view(product_id):
     review = request.form.get("new_review")
     rating = request.form.get("rating")
 
-    print("Review:", review)
     if review and rating:
         user = User.query.filter_by(id=session["user_id"]).first()
         new_review = Reviews(product_id=product_id, username=user.username, rating=rating, review=review, created_at=db.func.now())
