@@ -78,6 +78,7 @@ class Order_Items(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
 
+
     __table_args__ = (
         CheckConstraint('quantity > 0', name='check_quantity_positive'),
     )
@@ -94,6 +95,14 @@ class Reviews(db.Model):
     __table_args__ = (
         CheckConstraint('rating >= 1 AND rating <= 5', name='check_rating_range'),
     )
+
+class Orders(db.Model):
+    __tablename__ = "orders"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    total = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
 
 # Home Page
 @app.route("/",methods=["POST","GET"])
@@ -137,13 +146,16 @@ def login():
 
 
         user = User.query.filter_by(username=name).first()  # Fetch user from database
-        if check_password_hash(user.password_hash, password):
+        if user and check_password_hash(user.password_hash, password):
             flash("Login Successful!", "success")
             print("login successful")
 
             session["user_id"] = user.id  # Store user ID in session
             
-            return redirect(url_for("index"))  # Redirect to dashboard
+            if name == "admin":
+                return redirect(url_for("admin_dashboard"))  # Redirect to admin dashboard
+            else:
+                return redirect(url_for("index"))  # Redirect to dashboard
         else:
             flash("Invalid Credentials. Try Again.", "danger")
             return redirect(url_for("index"))
@@ -397,6 +409,72 @@ def create_stripe_products():
         })
 
     return stripe_products
+
+# Admin Dashboard Page
+@app.route("/admin")
+def admin_dashboard():
+    products = Product.query.all()
+    orders = Orders.query.order_by(Orders.created_at.desc()).all()  # Fetch orders sorted by date in descending order
+    return render_template("admin.html", products=products, orders=orders)
+
+@app.route("/update_stock/<int:product_id>", methods=["POST"])
+def update_stock(product_id):
+    action = request.form.get("action")
+    product = Product.query.get(product_id)
+    
+    if product:
+        if action == "increase":
+            product.stock += 1
+        elif action == "decrease" and product.stock > 0:
+            product.stock -= 1
+        db.session.commit()
+        flash(f"Stock for {product.name} updated successfully.", "success")
+    else:
+        flash("Product not found.", "danger")
+    
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/update_price/<int:product_id>", methods=["POST"])
+def update_price(product_id):
+    new_price = request.form.get("new_price")
+    product = Product.query.get(product_id)
+    
+    if product:
+        try:
+            new_price_float = float(new_price)
+            if new_price_float > 999999.99:
+                flash("Price cannot exceed $999,999.99.", "danger")
+            else:
+                product.price = new_price_float
+                db.session.commit()
+                flash(f"Price for {product.name} updated successfully.", "success")
+        except ValueError:
+            flash("Invalid price value.", "danger")
+    else:
+        flash("Product not found.", "danger")
+    
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/create_product", methods=["POST"])
+def create_product():
+    name = request.form.get("name")
+    description = request.form.get("description")
+    price = request.form.get("price")
+    stock = request.form.get("stock")
+    image_url = request.form.get("image_url")
+
+    new_product = Product(
+        name=name,
+        description=description,
+        price=float(price),
+        stock=int(stock),
+        image_url=image_url
+    )
+    db.session.add(new_product)
+    db.session.commit()
+    flash("New product created successfully.", "success")
+    
+    return redirect(url_for("admin_dashboard"))
 
 # Run Flask App
 if __name__ == "__main__":
