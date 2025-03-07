@@ -160,6 +160,25 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             z-index: -1;
         }
+
+        .order_history {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 16px;
+            color: #4CAF50;
+            cursor: pointer;
+        }
+
+        .order_history a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .order_history a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +187,11 @@
             <img src="/static/images/shopping-cart.png" alt="Shopping Cart">
         </a>
     </div>
+    {% if session.get('user_id') %}
+    <div class="order_history">
+        <a href="/order_history">Order History</a>
+    </div>
+    {% endif %}
     <div class="main">
         <h1>Welcome to the Military's Surplus</h1>
         <h2>We got everything that you could want in stock</h2>

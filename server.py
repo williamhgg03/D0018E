@@ -338,9 +338,10 @@ def create_checkout_session():
         checkout_session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            success_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/success.html",
-            cancel_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/cancel.html",
-            
+            #success_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/success.html",
+            #cancel_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/cancel.html",
+            success_url="http://127.0.0.1:5000/success.html",
+            cancel_url="http://127.0.0.1:5000/cancel.html",
         )
     except Exception as e:
         return str(e)
@@ -516,6 +517,16 @@ def delete_product(product_id):
     else:
         flash("Product not found.", "danger")
     return redirect(url_for("admin_dashboard"))
+
+@app.route("/order_history")
+def order_history():
+    if "user_id" not in session:
+        flash("You must be logged in to view your order history.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    orders = Orders.query.filter_by(user_id=user_id).order_by(Orders.created_at.desc()).all()
+    return render_template("order_history.html", orders=orders)
 
 @app.route("/logout")
 def logout():
