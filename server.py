@@ -371,10 +371,10 @@ def create_checkout_session():
         checkout_session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            #success_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/success.html",
-            #cancel_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/cancel.html",
-            success_url="http://127.0.0.1:5000/success.html",
-            cancel_url="http://127.0.0.1:5000/cancel.html",
+            success_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/success.html",
+            cancel_url="http://ec2-13-60-46-67.eu-north-1.compute.amazonaws.com/cancel.html",
+            #success_url="http://127.0.0.1:5000/success.html",
+            #cancel_url="http://127.0.0.1:5000/cancel.html",
         )
     except Exception as e:
         return str(e)
