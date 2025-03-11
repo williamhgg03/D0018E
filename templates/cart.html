@@ -61,9 +61,22 @@
 
         function hideCheckoutButton() {
             document.getElementById('checkout-button').style.display = 'none';
-            var message = document.createElement('p');
-            message.textContent = 'Please go back to the main menu';
-            document.getElementById('checkout-message').appendChild(message);
+            document.querySelector('.back-button').style.display = 'none';
+            var plusButtons = document.querySelectorAll('.plus-button');
+            var minusButtons = document.querySelectorAll('.minus-button');
+            plusButtons.forEach(function(button) {
+                button.style.display = 'none';
+            });
+            minusButtons.forEach(function(button) {
+                button.style.display = 'none';
+            });
+            var cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancel Checkout';
+            cancelButton.className = 'cancel-button';
+            cancelButton.onclick = function() {
+                window.location.href = '/cancel.html';
+            };
+            document.getElementById('checkout-message').appendChild(cancelButton);
         }
     </script>
 </head>
@@ -82,9 +95,9 @@
                                 <h3>{{ item[1].name }}</h3>
                                 <div class="my-3">
                                     <label for="quantity">Quantity</label>
-                                    <a href="/remove/{{item[1].id}}"><button>-</button></a>
+                                    <a href="/remove/{{item[1].id}}"><button class="minus-button">-</button></a>
                                     <span id="quantity">{{ item[0].quantity }}</span>
-                                    <a href="/add/{{item[1].id}}"><button>+</button></a>
+                                    <a href="/add/{{item[1].id}}"><button class="plus-button">+</button></a>
                                 </div>
 
                                 <div class="d-flex justify-content-between">
