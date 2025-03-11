@@ -245,13 +245,15 @@ def view_cart():
     if "user_id" not in session:
         flash("You must be logged in to view your cart.", "danger")
         return redirect(url_for("login"))
-
-    user_id = session["user_id"]
-    cart = get_or_create_cart(user_id)
-    items = []
-    if cart:
-        items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
-    return render_template("cart.html", items=items)
+    if session.get("checkout_initiated"):
+        return redirect(url_for("cancel"))
+    else:
+        user_id = session["user_id"]
+        cart = get_or_create_cart(user_id)
+        items = []
+        if cart:
+            items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+        return render_template("cart.html", items=items)
 
 # Remove item from cart
 @app.route("/remove/<int:item_id>", methods=["GET","POST"])
@@ -377,6 +379,7 @@ def create_checkout_session():
     except Exception as e:
         return str(e)
 
+    session["checkout_initiated"] = True  # Set session variable to indicate checkout initiation
     return redirect(checkout_session.url, code=303)
 
 @app.route("/success.html")
@@ -402,17 +405,21 @@ def success():
     for cart_item, product in items:
         db.session.delete(cart_item) # Remove bought items from cart
     db.session.commit()
+    session.pop("checkout_initiated", None)  # Clear the session variable
     return render_template(url_for("success"))
 
 @app.route("/cancel.html")
 def cancel():
-    user_id = session["user_id"]
-    cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
-    items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
-    for cart_item, product in items:
-        product.stock += cart_item.quantity # Add back stock
-    db.session.commit()
-    return render_template(url_for("cancel"))
+    print("Cancel route accessed")
+    if session.get("checkout_initiated"):
+        user_id = session["user_id"]
+        cart = Shopping_Cart.query.filter_by(user_id=user_id).first()
+        items = db.session.query(Shopping_Cart_Items, Product).join(Product).filter(Shopping_Cart_Items.shopping_cart_id == cart.id).all()
+        for cart_item, product in items:
+            product.stock += cart_item.quantity  # Add back stock
+        db.session.commit()
+        session.pop("checkout_initiated", None)  # Clear the session variable
+    return render_template("cancel.html")
 
 '''
 @app.route("/checkout.html")
