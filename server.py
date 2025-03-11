@@ -606,6 +606,11 @@ def order_history():
 
     user_id = session["user_id"]
     orders = Orders.query.filter_by(user_id=user_id).order_by(Orders.created_at.desc()).all()
+
+    # Fetch ordered items for each order
+    for order in orders:
+        order.items = db.session.query(Order_Items, Product).join(Product).filter(Order_Items.order_id == order.id).all()
+
     return render_template("order_history.html", orders=orders)
 
 @app.route("/logout")

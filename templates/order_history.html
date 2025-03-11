@@ -94,6 +94,7 @@
                         <th>Total</th>
                         <th>Status</th>
                         <th>Created At</th>
+                        <th>Items</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -103,6 +104,13 @@
                         <td>${{ order.total }}</td>
                         <td>{{ order.status }}</td>
                         <td>{{ order.created_at }}</td>
+                        <td>
+                            <ul>
+                                {% for item, product in order.items %}
+                                <li>{{ product.name }} (x{{ item.quantity }})</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
